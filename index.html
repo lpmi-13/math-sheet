@@ -1,181 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2-Digit Subtraction Worksheet</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
-        }
-        h1 {
-            color: black;
-            margin-bottom: 30px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(3, 1fr);
-            gap: 40px;
-            margin: 30px auto;
-            max-width: 800px;
-        }
-        .problem {
-            padding: 10px;
-        }
-        .problem-text {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-        .number-line {
-            width: 150px;
-            height: 40px;
-            position: relative;
-            margin: 10px auto;
-        }
-        .line {
-            width: 100%;
-            height: 1px;
-            background-color: black;
-            position: absolute;
-            top: 15px;
-        }
-        .tick {
-            width: 1px;
-            height: 10px;
-            background-color: black;
-            position: absolute;
-            top: 10px;
-        }
-        .number-label {
-            font-size: 12px;
-            position: absolute;
-            top: 22px;
-            transform: translateX(-50%);
-        }
-    </style>
-</head>
-<body>
-    <h1>2-Digit Subtraction Worksheet</h1>
-    <div class="grid" id="problemGrid"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>2-Digit Subtraction Worksheet</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                text-align: center;
+            }
+            h1 {
+                color: black;
+                margin-bottom: 30px;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: repeat(3, 1fr);
+                gap: 40px;
+                margin: 30px auto;
+                max-width: 800px;
+            }
+            .problem {
+                padding: 10px;
+            }
+            .problem-text {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+            .number-line {
+                width: 150px;
+                height: 40px;
+                position: relative;
+                margin: 10px auto;
+            }
+            .line {
+                width: 100%;
+                height: 1px;
+                background-color: black !important; /* Force black color on print */
+                position: absolute;
+                top: 15px;
+                print-color-adjust: exact; /* Force printing of background colors */
+                -webkit-print-color-adjust: exact;
+            }
+            .tick {
+                width: 1px;
+                height: 10px;
+                background-color: black !important; /* Force black color on print */
+                position: absolute;
+                top: 10px;
+                print-color-adjust: exact; /* Force printing of background colors */
+                -webkit-print-color-adjust: exact;
+            }
+            .number-label {
+                font-size: 12px;
+                position: absolute;
+                top: 22px;
+                transform: translateX(-50%);
+            }
 
-    <script>
-        // Function to generate a random 2-digit number (10-99)
-        function getRandomTwoDigitNumber() {
-            return Math.floor(Math.random() * 90) + 10;
-        }
-        
-        // Function to check if a number is a multiple of 10
-        function isMultipleOfTen(num) {
-            return num % 10 === 0;
-        }
-        
-        // Function to get tick positions based on the specified rules
-        function getTickPositions(smaller, larger) {
-            const ticks = [];
-            
-            // Get the multiples of 10 between the numbers
-            const lowerBound = Math.ceil(smaller / 10) * 10; // Round up to nearest 10
-            const upperBound = Math.floor(larger / 10) * 10; // Round down to nearest 10
-            
-            // Don't include the numbers themselves if they are multiples of 10
-            if (isMultipleOfTen(smaller) && lowerBound === smaller) {
-                // If smaller number is a multiple of 10, start from the next multiple
-                const nextMultiple = smaller + 10;
-                if (nextMultiple < larger) {
-                    ticks.push(nextMultiple);
+            @media print {
+                .line,
+                .tick {
+                    border-left: 1px solid black; /* Backup method for printing lines */
+                    border-top: 1px solid black; /* Backup method for printing lines */
                 }
-            } else if (lowerBound < larger) {
-                ticks.push(lowerBound);
             }
-            
-            if (isMultipleOfTen(larger) && upperBound === larger) {
-                // If larger number is a multiple of 10, use the previous multiple
-                const prevMultiple = larger - 10;
-                if (prevMultiple > smaller && !ticks.includes(prevMultiple) && ticks.length < 2) {
-                    ticks.push(prevMultiple);
-                }
-            } else if (upperBound > smaller && upperBound !== lowerBound && ticks.length < 2) {
-                ticks.push(upperBound);
+        </style>
+    </head>
+    <body>
+        <h1>2-Digit Subtraction Worksheet</h1>
+        <div class="grid" id="problemGrid"></div>
+
+        <script>
+            // Function to generate a random 2-digit number (10-99)
+            function getRandomTwoDigitNumber() {
+                return Math.floor(Math.random() * 90) + 10;
             }
-            
-            // Ensure we don't have more than 2 ticks
-            return ticks.slice(0, 2);
-        }
-        
-        // Function to generate subtraction problems
-        function generateProblems() {
-            const grid = document.getElementById('problemGrid');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 6; i++) {
-                // Generate two random 2-digit numbers
-                let num1 = getRandomTwoDigitNumber();
-                let num2 = getRandomTwoDigitNumber();
-                
-                // Make sure num1 is greater than num2 to avoid negative results
-                if (num1 < num2) {
-                    [num1, num2] = [num2, num1];
-                }
-                
-                // Get the tick positions
-                const tickPositions = getTickPositions(num2, num1);
-                
-                // Create problem element
-                const problemDiv = document.createElement('div');
-                problemDiv.className = 'problem';
-                
-                const problemText = document.createElement('div');
-                problemText.className = 'problem-text';
-                problemText.textContent = `${num1} - ${num2} = `;
-                
-                // Create number line with tick marks
-                const numberLine = document.createElement('div');
-                numberLine.className = 'number-line';
-                
-                // Add the horizontal line
-                const line = document.createElement('div');
-                line.className = 'line';
-                numberLine.appendChild(line);
-                
-                // Add tick marks
-                tickPositions.forEach(position => {
-                    // Skip if the position is one of the numbers in the problem
-                    if (position !== num1 && position !== num2) {
-                        const tick = document.createElement('div');
-                        tick.className = 'tick';
-                        // Position the tick proportionally on the line
-                        const positionPercent = ((position - num2) / (num1 - num2)) * 100;
-                        tick.style.left = `${positionPercent}%`;
-                        numberLine.appendChild(tick);
+
+            // Function to check if a number is a multiple of 10
+            function isMultipleOfTen(num) {
+                return num % 10 === 0;
+            }
+
+            // Function to get tick positions based on the specified rules
+            function getTickPositions(smaller, larger) {
+                const ticks = [];
+
+                // Get the multiples of 10 between the numbers
+                const lowerBound = Math.ceil(smaller / 10) * 10; // Round up to nearest 10
+                const upperBound = Math.floor(larger / 10) * 10; // Round down to nearest 10
+
+                // Don't include the numbers themselves if they are multiples of 10
+                if (isMultipleOfTen(smaller) && lowerBound === smaller) {
+                    // If smaller number is a multiple of 10, start from the next multiple
+                    const nextMultiple = smaller + 10;
+                    if (nextMultiple < larger) {
+                        ticks.push(nextMultiple);
                     }
-                });
-                
-                // Add number labels
-                // Add smaller number on the left
-                const smallerLabel = document.createElement('div');
-                smallerLabel.className = 'number-label';
-                smallerLabel.textContent = num2;
-                smallerLabel.style.left = '0%';
-                numberLine.appendChild(smallerLabel);
-                
-                // Add larger number on the right
-                const largerLabel = document.createElement('div');
-                largerLabel.className = 'number-label';
-                largerLabel.textContent = num1;
-                largerLabel.style.left = '100%';
-                numberLine.appendChild(largerLabel);
-                
-                problemDiv.appendChild(problemText);
-                problemDiv.appendChild(numberLine);
-                grid.appendChild(problemDiv);
+                } else if (lowerBound < larger) {
+                    ticks.push(lowerBound);
+                }
+
+                if (isMultipleOfTen(larger) && upperBound === larger) {
+                    // If larger number is a multiple of 10, use the previous multiple
+                    const prevMultiple = larger - 10;
+                    if (
+                        prevMultiple > smaller &&
+                        !ticks.includes(prevMultiple) &&
+                        ticks.length < 2
+                    ) {
+                        ticks.push(prevMultiple);
+                    }
+                } else if (
+                    upperBound > smaller &&
+                    upperBound !== lowerBound &&
+                    ticks.length < 2
+                ) {
+                    ticks.push(upperBound);
+                }
+
+                // Ensure we don't have more than 2 ticks
+                return ticks.slice(0, 2);
             }
-        }
-        
-        // Generate problems when page loads
-        window.onload = generateProblems;
-    </script>
-</body>
+
+            // Function to generate subtraction problems
+            function generateProblems() {
+                const grid = document.getElementById('problemGrid');
+                grid.innerHTML = '';
+
+                for (let i = 0; i < 6; i++) {
+                    // Generate two random 2-digit numbers
+                    let num1 = getRandomTwoDigitNumber();
+                    let num2 = getRandomTwoDigitNumber();
+
+                    // Make sure num1 is greater than num2 to avoid negative results
+                    if (num1 < num2) {
+                        [num1, num2] = [num2, num1];
+                    }
+
+                    // Get the tick positions
+                    const tickPositions = getTickPositions(num2, num1);
+
+                    // Create problem element
+                    const problemDiv = document.createElement('div');
+                    problemDiv.className = 'problem';
+
+                    const problemText = document.createElement('div');
+                    problemText.className = 'problem-text';
+                    problemText.textContent = `${num1} - ${num2} = `;
+
+                    // Create number line with tick marks
+                    const numberLine = document.createElement('div');
+                    numberLine.className = 'number-line';
+
+                    // Add the horizontal line
+                    const line = document.createElement('div');
+                    line.className = 'line';
+                    line.style.borderTop = '1px solid black'; // Additional border property
+                    numberLine.appendChild(line);
+
+                    // Add tick marks
+                    tickPositions.forEach((position) => {
+                        // Skip if the position is one of the numbers in the problem
+                        if (position !== num1 && position !== num2) {
+                            const tick = document.createElement('div');
+                            tick.className = 'tick';
+                            tick.style.borderLeft = '1px solid black'; // Additional border property
+                            // Position the tick proportionally on the line
+                            const positionPercent =
+                                ((position - num2) / (num1 - num2)) * 100;
+                            tick.style.left = `${positionPercent}%`;
+                            numberLine.appendChild(tick);
+                        }
+                    });
+
+                    // Add number labels
+                    // Add smaller number on the left
+                    const smallerLabel = document.createElement('div');
+                    smallerLabel.className = 'number-label';
+                    smallerLabel.textContent = num2;
+                    smallerLabel.style.left = '0%';
+                    numberLine.appendChild(smallerLabel);
+
+                    // Add larger number on the right
+                    const largerLabel = document.createElement('div');
+                    largerLabel.className = 'number-label';
+                    largerLabel.textContent = num1;
+                    largerLabel.style.left = '100%';
+                    numberLine.appendChild(largerLabel);
+
+                    problemDiv.appendChild(problemText);
+                    problemDiv.appendChild(numberLine);
+                    grid.appendChild(problemDiv);
+                }
+            }
+
+            // Generate problems when page loads
+            window.onload = generateProblems;
+        </script>
+    </body>
 </html>
